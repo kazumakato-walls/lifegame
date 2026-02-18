@@ -3,10 +3,25 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
     "lint": "echo lint",
     "test": "echo test",
-    "build": "echo build",
-    "typecheck": "echo typecheck",
-    "format": "echo format"
+    "typecheck": "tsc --noEmit",
+    "format": "prettier --write .",
+    "prisma:generate": "prisma generate",
+    "prisma:push": "prisma db push"
+  },
+  "dependencies": {
+    "next": "^13.4.0",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "@prisma/client": "5.14.0"
+  },
+  "devDependencies": {
+    "prisma": "5.14.0",
+    "typescript": "5.2.2",
+    "prettier": "3.6.0"
   }
 }
