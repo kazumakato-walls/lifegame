@@ -8,13 +8,20 @@ export default function Page() {
   const [wallet, setWallet] = useState<Wallet | null>(null)
   const [loading, setLoading] = useState(false)
   const [amount, setAmount] = useState<number>(100)
+  const [pop, setPop] = useState(false)
 
   const fetchWallet = async () => {
     setLoading(true)
     try {
       const res = await fetch('/api/wallet')
       const json = await res.json()
+      const prev = wallet?.balance ?? null
       setWallet(json)
+      // pop animation when balance increases
+      if (prev !== null && json.balance > prev) {
+        setPop(true)
+        setTimeout(() => setPop(false), 700)
+      }
     } finally {
       setLoading(false)
     }
@@ -51,20 +58,20 @@ export default function Page() {
           <div className="muted">Single-user • SQLite</div>
         </div>
 
-        <div className="balance">
-          {wallet ? `${wallet.balance.toLocaleString()} 円` : '—'}
+        <div className={"balance" + (pop ? ' pop' : '')}>
+          {wallet ? `🎉 ${wallet.balance.toLocaleString()} 円` : '—'}
           <small>毎日1回 1000円 を自動加算</small>
         </div>
 
         <div className="controls">
           <button className="btn" onClick={() => subtract(100)} disabled={loading}>
-            -100 円
+            🧧 -100
           </button>
           <button className="btn" onClick={() => subtract(500)} disabled={loading}>
-            -500 円
+            🧧 -500
           </button>
           <button className="btn ghost" onClick={fetchWallet} disabled={loading}>
-            リフレッシュ
+            🔄 リフレッシュ
           </button>
         </div>
 
@@ -80,7 +87,7 @@ export default function Page() {
             onClick={() => subtract(amount)}
             disabled={loading}
           >
-            減算
+            ➖ 減算
           </button>
         </div>
 
