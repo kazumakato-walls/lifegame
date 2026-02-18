@@ -1,0 +1,17 @@
+{
+  "name": "AI Dev Factory Full",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:20",
+  "features": {
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
+  "postCreateCommand": "npm install || true",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "GitHub.copilot",
+        "GitHub.copilot-chat",
+        "dbaeumer.vscode-eslint"
+      ]
+    }
+  }
+}
