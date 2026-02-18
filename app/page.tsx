@@ -7,60 +7,84 @@ type Wallet = { balance: number }
 export default function Page() {
   const [wallet, setWallet] = useState<Wallet | null>(null)
   const [loading, setLoading] = useState(false)
+  const [amount, setAmount] = useState<number>(100)
 
   const fetchWallet = async () => {
     setLoading(true)
-    const res = await fetch('/api/wallet')
-    const json = await res.json()
-    setWallet(json)
-    setLoading(false)
+    try {
+      const res = await fetch('/api/wallet')
+      const json = await res.json()
+      setWallet(json)
+    } finally {
+      setLoading(false)
+    }
   }
 
   useEffect(() => {
-    // on load, call wallet endpoint which also triggers daily claim if eligible
     fetchWallet()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const subtract = async (amount: number) => {
+  const subtract = async (amt: number) => {
+    if (amt <= 0) return
     setLoading(true)
-    await fetch('/api/subtract', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ amount }),
-    })
-    await fetchWallet()
+    try {
+      await fetch('/api/subtract', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount: amt }),
+      })
+      await fetchWallet()
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
-    <div>
-      <h1>Lifegame — 仮想ウォレット</h1>
-      {loading && <div>処理中…</div>}
-      <div style={{ marginTop: 16 }}>
-        <strong>現在残高:</strong> {wallet ? `${wallet.balance} 円` : '読み込み中'}
-      </div>
+    <div className="container">
+      <div className="card">
+        <div className="header">
+          <div>
+            <div className="title">Lifegame</div>
+            <div className="subtitle">ログインボーナス型 仮想ウォレット（MVP）</div>
+          </div>
+          <div className="muted">Single-user • SQLite</div>
+        </div>
 
-      <div style={{ marginTop: 16 }}>
-        <button onClick={() => subtract(100)}> -100 円</button>
-        <button onClick={() => subtract(500)} style={{ marginLeft: 8 }}>
-          -500 円
-        </button>
-      </div>
+        <div className="balance">
+          {wallet ? `${wallet.balance.toLocaleString()} 円` : '—'}
+          <small>毎日1回 1000円 を自動加算</small>
+        </div>
 
-      <div style={{ marginTop: 16 }}>
-        <label>
-          任意金額: <input id="amount" type="number" defaultValue={100} />
-        </label>
-        <button
-          style={{ marginLeft: 8 }}
-          onClick={() => {
-            const el = document.getElementById('amount') as HTMLInputElement | null
-            if (!el) return
-            const v = parseInt(el.value || '0', 10)
-            if (v > 0) subtract(v)
-          }}
-        >
-          減算
-        </button>
+        <div className="controls">
+          <button className="btn" onClick={() => subtract(100)} disabled={loading}>
+            -100 円
+          </button>
+          <button className="btn" onClick={() => subtract(500)} disabled={loading}>
+            -500 円
+          </button>
+          <button className="btn ghost" onClick={fetchWallet} disabled={loading}>
+            リフレッシュ
+          </button>
+        </div>
+
+        <div className="inputRow">
+          <input
+            type="number"
+            value={amount}
+            onChange={(e) => setAmount(Number(e.target.value))}
+            min={1}
+          />
+          <button
+            className="btn secondary"
+            onClick={() => subtract(amount)}
+            disabled={loading}
+          >
+            減算
+          </button>
+        </div>
+
+        <div className="note">注意: 認証・複数ユーザー未実装。単一ユーザーの動作確認用途のみです。</div>
       </div>
     </div>
   )
