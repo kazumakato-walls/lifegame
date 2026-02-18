@@ -73,6 +73,27 @@ export default function Page() {
           <button className="btn ghost" onClick={fetchWallet} disabled={loading}>
             🔄 リフレッシュ
           </button>
+          <button
+            className="btn ghost"
+            onClick={async () => {
+              setLoading(true)
+              try {
+                const res = await fetch('/api/simulate-login', { method: 'POST' })
+                const json = await res.json()
+                const prev = wallet?.balance ?? null
+                setWallet(json)
+                if (prev !== null && json.balance > prev) {
+                  setPop(true)
+                  setTimeout(() => setPop(false), 700)
+                }
+              } finally {
+                setLoading(false)
+              }
+            }}
+            disabled={loading}
+          >
+            🔑 ログイン再現
+          </button>
         </div>
 
         <div className="inputRow">
